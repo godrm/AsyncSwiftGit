@@ -87,17 +87,16 @@ public final class Commit {
   }
     
     /// The set of all patches of diff by this commit.
-    public var changedPatches: Set<Patch> {
+    public var changedPatches: Array<Patch> {
       get throws {
         let repository = Repository(repositoryPointer: git_commit_owner(commit), isOwner: false)
-        var changedPatches: Set<Patch> = []
+        var changedPatches: Array<Patch> = []
         let newTree = try tree
         for parent in parents {
           let oldTree = try parent.tree
           let diff = try repository.diff(oldTree, newTree)
           for (_, patch) in diff {
-              changedPatches.insert(patch)
-              changedPatches.insert(patch)
+              changedPatches.append(patch)
           }
         }
         return changedPatches

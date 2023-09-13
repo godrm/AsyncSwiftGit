@@ -13,21 +13,21 @@ public final class Patch : Hashable {
         hasher.combine(patchPointer.hashValue)
     }
     
-    let patchPointer: OpaquePointer
+    private let patchPointer: OpaquePointer
     
     /// The delta corresponding to this patch.
-    let delta: Diff.Delta
+    private let delta: Diff.Delta
     
     /// The number of added lines in this patch.
-    private(set) var addedLinesCount: UInt
+    public private(set) var addedLinesCount: UInt
     
     /// The number of deleted lines in this patch.
-    private(set) var deletedLinesCount: UInt
+    public private(set) var deletedLinesCount: UInt
     
     /// The number of context lines in this patch.
-    private(set) var contextLinesCount: UInt
+    public private(set) var contextLinesCount: UInt
         
-    init(_ patchPointer: OpaquePointer, delta: Diff.Delta) {
+    public init(_ patchPointer: OpaquePointer, delta: Diff.Delta) {
         self.patchPointer = patchPointer
         self.delta = delta
         self.addedLinesCount = 0
@@ -41,12 +41,12 @@ public final class Patch : Hashable {
         git_patch_free(patchPointer)
     }
     
-    func sizeWithContext(includeContext: Bool, includeHunkHeaders: Bool, includeFileHeaders: Bool) -> UInt {
+    public func sizeWithContext(includeContext: Bool, includeHunkHeaders: Bool, includeFileHeaders: Bool) -> UInt {
         let size = UInt( git_patch_size(self.patchPointer, (includeContext) ? 1 : 0, (includeHunkHeaders) ? 1 : 0, (includeFileHeaders) ? 1 : 0))
         return size
     }
     
-    func patchData() -> Data {
+    public func patchData() -> Data {
         var buf = git_buf()
         git_patch_to_buf(&buf, self.patchPointer)
         let buffer = Data.init(bytes: buf.ptr, count: buf.size)
@@ -55,11 +55,11 @@ public final class Patch : Hashable {
     }
     
     /// The number of hunks in this patch.
-    var hunkCount: UInt {
+    public var hunkCount: UInt {
         return UInt(git_patch_num_hunks(self.patchPointer))
     }
 
-    func enumerateHunks(with block:@escaping (_ hunk: Hunk, _ isStop: inout Bool )->()) -> Bool {
+    public func enumerateHunks(with block:@escaping (_ hunk: Hunk, _ isStop: inout Bool )->()) -> Bool {
         
         for index in 0..<self.hunkCount {
             guard let hunk = Hunk(with: self, index: Int(index)) else {
@@ -73,7 +73,7 @@ public final class Patch : Hashable {
     }
     
     
-    class Hunk {
+    public class Hunk {
         enum HunkError: Error {
             case FailExtractingLine
         }
@@ -129,7 +129,7 @@ public final class Patch : Hashable {
         }
     }
     
-    class Line {
+    public class Line {
         private let linePointer : UnsafePointer<git_diff_line>
         private(set) var content : String
         private(set) var oldLineNumber: Int

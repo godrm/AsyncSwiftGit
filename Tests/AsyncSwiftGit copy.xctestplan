@@ -1,0 +1,24 @@
+{
+  "configurations" : [
+    {
+      "id" : "2B4A257A-1A16-47F4-9140-BF645E6CC6FC",
+      "name" : "Test Scheme Action",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+
+  },
+  "testTargets" : [
+    {
+      "target" : {
+        "containerPath" : "container:",
+        "identifier" : "AsyncSwiftGitTests",
+        "name" : "AsyncSwiftGitTests"
+      }
+    }
+  ],
+  "version" : 1
+}
