@@ -77,7 +77,7 @@ public final class Commit {
       for parent in parents {
         let oldTree = try parent.tree
         let diff = try repository.diff(oldTree, newTree)
-        for delta in diff {
+        for (delta, _) in diff {
           changedPaths.insert(delta.oldFile.path)
           changedPaths.insert(delta.newFile.path)
         }
@@ -85,6 +85,24 @@ public final class Commit {
       return changedPaths
     }
   }
+    
+    /// The set of all patches of diff by this commit.
+    public var changedPatches: Set<Patch> {
+      get throws {
+        let repository = Repository(repositoryPointer: git_commit_owner(commit), isOwner: false)
+        var changedPatches: Set<Patch> = []
+        let newTree = try tree
+        for parent in parents {
+          let oldTree = try parent.tree
+          let diff = try repository.diff(oldTree, newTree)
+          for (_, patch) in diff {
+              changedPatches.insert(patch)
+              changedPatches.insert(patch)
+          }
+        }
+        return changedPatches
+      }
+    }
 }
 
 extension Commit: CustomStringConvertible {

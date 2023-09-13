@@ -23,7 +23,7 @@ public final class Diff {
   ///
   /// A `Delta` is a file pair with an old and new revision. The old version may be absent if the file was just created and the new version may be absent if the file was deleted.
   /// A ``Diff`` is mostly just a list of deltas.
-    public struct Delta : Hashable {
+  public struct Delta : Hashable {
     public let status: Status
     public let flags: Flags
     public let oldFile: File
@@ -36,7 +36,7 @@ public final class Diff {
       self.newFile = File(delta.new_file)
     }
       
-    public static func == (lhs: AsyncSwiftGit.Diff.Delta, rhs: AsyncSwiftGit.Diff.Delta) -> Bool {
+    public static func == (lhs: Diff.Delta, rhs: Diff.Delta) -> Bool {
       lhs.hashValue == rhs.hashValue
     }
 
@@ -44,7 +44,6 @@ public final class Diff {
       hasher.combine(self.newFile.id)
       hasher.combine(self.oldFile.id)
     }
-
   }
 
   public enum Status: UInt32, CustomStringConvertible {
@@ -166,7 +165,11 @@ extension Diff: RandomAccessCollection {
     i - 1
   }
 
-  public subscript(position: Int) -> Delta {
-    Delta(git_diff_get_delta(diffPointer, position)!.pointee)
+  public subscript(position: Int) -> (Delta, Patch) {
+    var patch : OpaquePointer? = nil
+    let deltaObject = Delta(git_diff_get_delta(diffPointer, position)!.pointee)
+    git_patch_from_diff(&patch, diffPointer, position)
+    let patchObject = Patch(patch!, delta: deltaObject)
+    return (deltaObject, patchObject)
   }
 }
