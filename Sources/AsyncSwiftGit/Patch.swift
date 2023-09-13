@@ -82,12 +82,12 @@ public final class Patch : Hashable {
         private var index : Int
         private(set) var git_hunk: UnsafePointer<git_diff_hunk>?
         
-        private(set) var header: String
-        private(set) var lineCount: UInt
-        private(set) var oldStart: UInt
-        private(set) var oldLines: UInt
-        private(set) var newStart: UInt
-        private(set) var newLines: UInt
+        public private(set) var header: String
+        public private(set) var lineCount: UInt
+        public private(set) var oldStart: UInt
+        public private(set) var oldLines: UInt
+        public private(set) var newStart: UInt
+        public private(set) var newLines: UInt
         
         init?(with patch: Patch, index: Int) {
             self.patch = patch
@@ -111,7 +111,7 @@ public final class Patch : Hashable {
             }
         }
         
-        func enumerateLinesInHunk(with block:@escaping (_ line: Line, _ isStop: inout Bool )->()) throws -> Bool {
+        public func enumerateLinesInHunk(with block:@escaping (_ line: Line, _ isStop: inout Bool )->()) throws -> Bool {
             for lineIndex in 0..<lineCount {
                 var gitLine : UnsafePointer<git_diff_line>? = nil
                 let result = git_patch_get_line_in_hunk(&gitLine, patch.patchPointer, index, Int(lineIndex))
@@ -131,13 +131,13 @@ public final class Patch : Hashable {
     
     public class Line {
         private let linePointer : UnsafePointer<git_diff_line>
-        private(set) var content : String
-        private(set) var oldLineNumber: Int
-        private(set) var newLineNumber: Int
-        private(set) var origin: Origin
-        private(set) var lineCount: Int
+        public private(set) var content : String
+        public private(set) var oldLineNumber: Int
+        public private(set) var newLineNumber: Int
+        public private(set) var origin: Origin
+        public private(set) var lineCount: Int
         
-        enum Origin : String {
+        public enum Origin : String {
             case CONTEXT = " "
             case ADDITION = "+"
             case DELETION = "-"
