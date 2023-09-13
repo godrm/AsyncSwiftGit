@@ -23,7 +23,7 @@ public final class Diff {
   ///
   /// A `Delta` is a file pair with an old and new revision. The old version may be absent if the file was just created and the new version may be absent if the file was deleted.
   /// A ``Diff`` is mostly just a list of deltas.
-  public struct Delta {
+    public struct Delta : Hashable {
     public let status: Status
     public let flags: Flags
     public let oldFile: File
@@ -35,9 +35,19 @@ public final class Diff {
       self.oldFile = File(delta.old_file)
       self.newFile = File(delta.new_file)
     }
+      
+    public static func == (lhs: AsyncSwiftGit.Diff.Delta, rhs: AsyncSwiftGit.Diff.Delta) -> Bool {
+      lhs.hashValue == rhs.hashValue
+    }
+
+    public func hash(into hasher: inout Hasher) {
+      hasher.combine(self.newFile.id)
+      hasher.combine(self.oldFile.id)
+    }
+
   }
 
-  public enum Status: UInt32 {
+  public enum Status: UInt32, CustomStringConvertible {
     /** no changes */
     case unmodified = 0
 
@@ -70,6 +80,33 @@ public final class Diff {
 
     /** entry in the index is conflicted */
     case conflicted = 10
+
+    public var description : String {
+      switch self {
+      case .unmodified:
+          return "unmodified"
+      case .added:
+          return "added"
+      case .deleted:
+          return "deleted"
+      case .modified:
+          return "modified"
+      case .renamed:
+          return "renamed"
+      case .copied:
+          return "copied"
+      case .ignored:
+          return "ignored"
+      case .untracked:
+          return "untracked"
+      case .typechange:
+          return "typechange"
+      case .unreadable:
+          return "unreadable"
+      case .conflicted:
+          return "conflicted"
+      }
+    }
   }
 
   /// Flag values for a ``Delta`` and a ``File``.
