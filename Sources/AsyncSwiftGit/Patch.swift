@@ -175,7 +175,7 @@ public final class Patch : Hashable {
             self.oldLineNumber = Int(linePointer.pointee.old_lineno)
             self.newLineNumber = Int(linePointer.pointee.new_lineno)
             self.lineCount = Int(linePointer.pointee.num_lines)
-            self.origin = Origin(rawValue: String(linePointer.pointee.origin)) ?? .CONTEXT
+            self.origin = Origin(rawValue: String(UnicodeScalar(UInt8(linePointer.pointee.origin)))) ?? .CONTEXT
         }
     }
 }
