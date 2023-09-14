@@ -16,16 +16,27 @@ final class PatchTests: XCTestCase {
         defer {
           try? FileManager.default.removeItem(at: location)
         }
-        var originURL = URL(string: "https://gist.github.com/02bc016ba7908e82a552fba85a0ad50d.git")!
+        let originURL = URL(string: "https://gist.github.com/02bc016ba7908e82a552fba85a0ad50d.git")!
         let repository = try await Repository.clone(from: originURL, to: location)
-        guard let commitLists = try? await repository.allCommits(revspec: "origin/master") else {
+        guard let commitLists = try? repository.allCommits(revspec: "origin/master") else {
             XCTAssert(false)
             return
         }
         for commit in commitLists {
-            for patch in try commit.changedPatches {
-                let description = String(data: patch.patchData(), encoding: .utf8) ?? ""
-                print(description)
+            print("commit=\(commit.summary)")
+            let diffs = try commit.changedDiffs
+            for diff in diffs {  
+                for (delta, patch) in diff {
+                    print("\(delta.status.description) \(delta.oldFile.path) ==> \(delta.newFile.path)")
+                    for hunkIndex in 0..<patch.hunkCount {
+                        guard let hunk = patch.hunk(at: Int(hunkIndex)) else { break }
+                        print("header=\(hunk.header)")
+                        for lineIndex in 0..<hunk.lineCount  {
+                            guard let line = hunk.line(at: Int(lineIndex)) else { break }
+                            print("\(line.oldLineNumber), \(line.newLineNumber), \(line.content)")
+                        }
+                    }
+                }
             }
         }
     }

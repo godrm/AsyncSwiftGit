@@ -46,6 +46,7 @@ public final class Patch : Hashable {
         return size
     }
     
+    /// The binary diff for this patch.
     public func patchData() -> Data {
         var buf = git_buf()
         git_patch_to_buf(&buf, self.patchPointer)
@@ -59,6 +60,7 @@ public final class Patch : Hashable {
         return UInt(git_patch_num_hunks(self.patchPointer))
     }
 
+    /// enumerate by hunk
     public func enumerateHunks(with block:@escaping (_ hunk: Hunk, _ isStop: inout Bool )->()) -> Bool {
         
         for index in 0..<self.hunkCount {
@@ -72,6 +74,11 @@ public final class Patch : Hashable {
         return true
     }
     
+    public func hunk(at index: Int) -> Hunk? {
+        guard index >= 0 && index <= self.hunkCount-1 else { return nil }
+        let hunk = Hunk(with: self, index: index)
+        return hunk
+    }
     
     public class Hunk {
         enum HunkError: Error {
@@ -111,20 +118,30 @@ public final class Patch : Hashable {
             }
         }
         
+        public func line(at lineIndex: Int) -> Line? {
+            guard lineIndex >= 0 && lineIndex <= self.lineCount-1 else { return nil }
+            let line = try? makeLine(at: UInt(lineIndex))
+            return line
+        }
+
+        private func makeLine(at lineIndex: UInt) throws -> Line {
+            var gitLine : UnsafePointer<git_diff_line>? = nil
+            let result = git_patch_get_line_in_hunk(&gitLine, patch.patchPointer, index, Int(lineIndex))
+            guard result == GIT_OK.rawValue,
+                let linePointer = gitLine else {
+                throw HunkError.FailExtractingLine
+            }
+            let line = Line(with: linePointer)
+            return line
+        }
+        
         public func enumerateLinesInHunk(with block:@escaping (_ line: Line, _ isStop: inout Bool )->()) throws -> Bool {
             for lineIndex in 0..<lineCount {
-                var gitLine : UnsafePointer<git_diff_line>? = nil
-                let result = git_patch_get_line_in_hunk(&gitLine, patch.patchPointer, index, Int(lineIndex))
-                guard result == GIT_OK.rawValue,
-                    let linePointer = gitLine else {
-                    throw HunkError.FailExtractingLine
-                }
-                let line = Line(with: linePointer)
+                let line = try makeLine(at: lineIndex)
                 var shouldStop = false
                 block(line, &shouldStop)
                 if shouldStop { break }
             }
-            
             return true
         }
     }

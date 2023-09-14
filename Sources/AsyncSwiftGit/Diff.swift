@@ -4,7 +4,15 @@ import Clibgit2
 import Foundation
 
 /// The cumulative list of differences between two snapshots of a repository (possibly filtered by a set of file name patterns).
-public final class Diff {
+public final class Diff : Hashable {
+  public static func == (lhs: Diff, rhs: Diff) -> Bool {
+    lhs.hashValue == rhs.hashValue
+  }
+
+  public func hash(into hasher: inout Hasher) {
+    hasher.combine(self.diffPointer)
+  }
+
   init(_ diffPointer: OpaquePointer) {
     self.diffPointer = diffPointer
     self.deltaCount = git_diff_num_deltas(diffPointer)
