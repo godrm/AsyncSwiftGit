@@ -25,7 +25,7 @@ public final class Diff : Hashable {
   let diffPointer: OpaquePointer
 
   /// The number of ``Delta`` structs contained in this diff.
-  let deltaCount: Int
+  public let deltaCount: Int
 
   /// A description of changes to a single entry between two snapshots of a repository.
   ///
