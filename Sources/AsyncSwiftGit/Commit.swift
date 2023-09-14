@@ -104,15 +104,15 @@ public final class Commit {
     }
     
     /// The set of all diff of diff by this commit.
-    public var changedDiffs: Set<Diff> {
+    public var changedDiffs: Array<Diff> {
       get throws {
         let repository = Repository(repositoryPointer: git_commit_owner(commit), isOwner: false)
-        var changedDiffs: Set<Diff> = []
+        var changedDiffs: Array<Diff> = []
         let newTree = try tree
         for parent in parents {
           let oldTree = try parent.tree
           let diff = try repository.diff(oldTree, newTree)
-            changedDiffs.insert(diff)
+            changedDiffs.append(diff)
         }
         return changedDiffs
       }
