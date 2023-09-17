@@ -75,7 +75,7 @@ public final class Patch : Hashable {
     }
     
     public func hunk(at index: Int) -> Hunk? {
-        guard index >= 0 && index <= self.hunkCount-1 else { return nil }
+        guard self.hunkCount > 0 && index >= 0 && index <= self.hunkCount-1 else { return nil }
         let hunk = Hunk(with: self, index: index)
         return hunk
     }
@@ -119,7 +119,7 @@ public final class Patch : Hashable {
         }
         
         public func line(at lineIndex: Int) -> Line? {
-            guard self.lineCount > 1 && lineIndex >= 0 && lineIndex <= self.lineCount-1 else { return nil }
+            guard self.lineCount > 0 && lineIndex >= 0 && lineIndex <= self.lineCount-1 else { return nil }
             let line = try? makeLine(at: UInt(lineIndex))
             return line
         }
